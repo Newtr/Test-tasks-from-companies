@@ -1,8 +1,10 @@
 import java.io.*;
 import java.util.*;
 
-public class Main {
-    public static void main(String[] args) throws IOException {
+public class Main 
+{
+    public static void main(String[] args) throws IOException 
+    {
         BufferedReader br = new BufferedReader(new FileReader("INPUT.TXT"));
         PrintWriter pw = new PrintWriter(new FileWriter("OUTPUT.TXT"));
         
@@ -17,22 +19,26 @@ public class Main {
         pw.close();
     }
 
-    private static String divide(int A, int B) {
+    private static String divide(int A, int B) 
+    {
         StringBuilder result = new StringBuilder();
         int integerPart = A / B;
         int remainder = A % B;
         result.append(integerPart);
         
-        if (remainder == 0) {
-            return result.toString(); // Если делится нацело
+        if (remainder == 0) 
+        {
+            return result.toString();
         }
         
         result.append(".");
         Map<Integer, Integer> remainderMap = new HashMap<>();
         StringBuilder fractionalPart = new StringBuilder();
         
-        while (remainder != 0) {
-            if (remainderMap.containsKey(remainder)) {
+        while (remainder != 0) 
+        {
+            if (remainderMap.containsKey(remainder)) 
+            {
                 int start = remainderMap.get(remainder);
                 fractionalPart.insert(start, "(");
                 fractionalPart.append(")");

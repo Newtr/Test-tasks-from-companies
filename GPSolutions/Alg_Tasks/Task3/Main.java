@@ -1,12 +1,12 @@
 import java.io.*;
-import java.util.*;
 
-public class Main {
-    public static void main(String[] args) throws IOException {
+public class Main 
+{
+    public static void main(String[] args) throws IOException 
+    {
         BufferedReader br = new BufferedReader(new FileReader("INPUT.TXT"));
         PrintWriter pw = new PrintWriter(new FileWriter("OUTPUT.TXT"));
 
-        // Считываем входные данные
         String[] line1 = br.readLine().split(" ");
         int x0 = Integer.parseInt(line1[0]);
         int y0 = Integer.parseInt(line1[1]);
@@ -20,17 +20,19 @@ public class Main {
         int t = Integer.parseInt(line3[1]);
         int d = Integer.parseInt(line3[2]);
 
-        // Координаты цели через t секунд
+        br.close();
+
         long xt = x0 + (long) Vx * t;
         long yt = y0 + (long) Vy * t;
 
-        // Расстояние до цели через t секунд
         double dt = Math.sqrt(xt * xt + yt * yt);
 
-        // Проверяем достижимость
-        if (Math.abs(dt - d) <= V * t) {
+        if (Math.abs(dt - d) <= V * t) 
+        {
             pw.println("YES");
-        } else {
+        } 
+        else 
+        {
             pw.println("NO");
         }
 

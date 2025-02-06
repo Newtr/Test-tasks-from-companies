@@ -1,8 +1,10 @@
 import java.io.*;
 import java.util.*;
 
-public class Main {
-    public static void main(String[] args) throws IOException {
+public class Main 
+{
+    public static void main(String[] args) throws IOException 
+    {
         BufferedReader br = new BufferedReader(new FileReader("INPUT.TXT"));
         PrintWriter pw = new PrintWriter(new FileWriter("OUTPUT.TXT"));
         
@@ -15,9 +17,12 @@ public class Main {
         List<Integer> aPerms = getValidPermutations(a);
         List<Integer> bPerms = getValidPermutations(b);
         
-        for (int x : aPerms) {
-            for (int y : bPerms) {
-                if (x + y == c) {
+        for (int x : aPerms) 
+        {
+            for (int y : bPerms) 
+            {
+                if (x + y == c) 
+                {
                     pw.println("YES");
                     pw.println(x + " " + y);
                     pw.close();
@@ -30,7 +35,8 @@ public class Main {
         pw.close();
     }
     
-    private static List<Integer> getValidPermutations(int num) {
+    private static List<Integer> getValidPermutations(int num) 
+    {
         char[] digits = String.valueOf(num).toCharArray();
         Set<Integer> permSet = new HashSet<>();
         permute(digits, 0, permSet);
@@ -39,22 +45,27 @@ public class Main {
         return permList;
     }
     
-    private static void permute(char[] arr, int index, Set<Integer> permSet) {
-        if (index == arr.length) {
+    private static void permute(char[] arr, int index, Set<Integer> permSet) 
+    {
+        if (index == arr.length) 
+        {
             String permutedStr = new String(arr).replaceFirst("^0+", "");
-            if (!permutedStr.isEmpty()) {
+            if (!permutedStr.isEmpty()) 
+            {
                 permSet.add(Integer.parseInt(permutedStr));
             }
             return;
         }
-        for (int i = index; i < arr.length; i++) {
+        for (int i = index; i < arr.length; i++) 
+        {
             swap(arr, i, index);
             permute(arr, index + 1, permSet);
             swap(arr, i, index);
         }
     }
     
-    private static void swap(char[] arr, int i, int j) {
+    private static void swap(char[] arr, int i, int j) 
+    {
         char temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;

@@ -40,10 +40,13 @@ public class Main
             {
                 String remaining1 = num1.substring(i);
                 String remaining2 = num2.substring(j);
-                if ((remaining1 + remaining2).compareTo(remaining2 + remaining1) < 0) {
+                if ((remaining1 + remaining2).compareTo(remaining2 + remaining1) < 0) 
+                {
                     merged.append(digit1);
                     i++;
-                } else {
+                } 
+                else 
+                {
                     merged.append(digit2);
                     j++;
                 }
