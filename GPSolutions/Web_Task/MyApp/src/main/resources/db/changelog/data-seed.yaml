@@ -1,0 +1,349 @@
+databaseChangeLog:
+  - changeSet:
+      id: seed-data
+      author: roman
+      changes:
+        # Insert Addresses
+        - insert:
+            tableName: addresses
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: house_number
+                  value: 9
+              - column:
+                  name: street
+                  value: "Pobediteley Avenue"
+              - column:
+                  name: city
+                  value: "Minsk"
+              - column:
+                  name: county
+                  value: "Belarus"
+              - column:
+                  name: post_code
+                  value: "220004"
+
+        - insert:
+            tableName: addresses
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: house_number
+                  value: 25
+              - column:
+                  name: street
+                  value: "Tverskaya Street"
+              - column:
+                  name: city
+                  value: "Moscow"
+              - column:
+                  name: county
+                  value: "Russia"
+              - column:
+                  name: post_code
+                  value: "125009"
+
+        - insert:
+            tableName: addresses
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: house_number
+                  value: 1
+              - column:
+                  name: street
+                  value: "Regent Street"
+              - column:
+                  name: city
+                  value: "London"
+              - column:
+                  name: county
+                  value: "UK"
+              - column:
+                  name: post_code
+                  value: "W1B 5AH"
+
+        # Insert Amenities
+        - insert:
+            tableName: amenities
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: name
+                  value: "Free parking"
+
+        - insert:
+            tableName: amenities
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: name
+                  value: "Free WiFi"
+
+        - insert:
+            tableName: amenities
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: name
+                  value: "Non-smoking rooms"
+
+        - insert:
+            tableName: amenities
+            columns:
+              - column:
+                  name: id
+                  value: 4
+              - column:
+                  name: name
+                  value: "Fitness center"
+
+        - insert:
+            tableName: amenities
+            columns:
+              - column:
+                  name: id
+                  value: 5
+              - column:
+                  name: name
+                  value: "Swimming pool"
+
+        # Insert Arrival Times
+        - insert:
+            tableName: arrival_times
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: check_in
+                  value: "14:00"
+              - column:
+                  name: check_out
+                  value: "12:00"
+
+        - insert:
+            tableName: arrival_times
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: check_in
+                  value: "15:00"
+              - column:
+                  name: check_out
+                  value: "11:00"
+
+        - insert:
+            tableName: arrival_times
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: check_in
+                  value: "13:00"
+              - column:
+                  name: check_out
+                  value: "10:00"
+
+        # Insert Contacts
+        - insert:
+            tableName: contacts
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: phone
+                  value: "+375 17 309-80-00"
+              - column:
+                  name: email
+                  value: "info@hilton-minsk.com"
+
+        - insert:
+            tableName: contacts
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: phone
+                  value: "+7 495 777-77-77"
+              - column:
+                  name: email
+                  value: "info@marriott-moscow.com"
+
+        - insert:
+            tableName: contacts
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: phone
+                  value: "+44 20 7493-8181"
+              - column:
+                  name: email
+                  value: "info@parklane-london.com"
+
+        # Insert Hotels
+        - insert:
+            tableName: hotels
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: name
+                  value: "DoubleTree by Hilton Minsk"
+              - column:
+                  name: description
+                  value: "Luxurious hotel with city views"
+              - column:
+                  name: brand
+                  value: "Hilton"
+              - column:
+                  name: address_id
+                  value: 1
+              - column:
+                  name: contacts_id
+                  value: 1
+              - column:
+                  name: arrival_time_id
+                  value: 1
+
+        - insert:
+            tableName: hotels
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: name
+                  value: "The Ritz-Carlton Moscow"
+              - column:
+                  name: description
+                  value: "5-star luxury hotel"
+              - column:
+                  name: brand
+                  value: "Marriott"
+              - column:
+                  name: address_id
+                  value: 2
+              - column:
+                  name: contacts_id
+                  value: 2
+              - column:
+                  name: arrival_time_id
+                  value: 2
+
+        - insert:
+            tableName: hotels
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: name
+                  value: "The Park Lane Hotel London"
+              - column:
+                  name: description
+                  value: "Iconic luxury hotel"
+              - column:
+                  name: brand
+                  value: "Hilton"
+              - column:
+                  name: address_id
+                  value: 3
+              - column:
+                  name: contacts_id
+                  value: 3
+              - column:
+                  name: arrival_time_id
+                  value: 3
+
+        # Insert Hotel-Amenities relationships
+        - insert:
+            tableName: hotel_amenities
+            columns:
+              - column:
+                  name: hotel_id
+                  value: 1
+              - column:
+                  name: amenity_id
+                  value: 1
+
+        - insert:
+            tableName: hotel_amenities
+            columns:
+              - column:
+                  name: hotel_id
+                  value: 1
+              - column:
+                  name: amenity_id
+                  value: 2
+
+        - insert:
+            tableName: hotel_amenities
+            columns:
+              - column:
+                  name: hotel_id
+                  value: 1
+              - column:
+                  name: amenity_id
+                  value: 3
+
+        - insert:
+            tableName: hotel_amenities
+            columns:
+              - column:
+                  name: hotel_id
+                  value: 2
+              - column:
+                  name: amenity_id
+                  value: 2
+
+        - insert:
+            tableName: hotel_amenities
+            columns:
+              - column:
+                  name: hotel_id
+                  value: 2
+              - column:
+                  name: amenity_id
+                  value: 4
+
+        - insert:
+            tableName: hotel_amenities
+            columns:
+              - column:
+                  name: hotel_id
+                  value: 3
+              - column:
+                  name: amenity_id
+                  value: 1
+
+        - insert:
+            tableName: hotel_amenities
+            columns:
+              - column:
+                  name: hotel_id
+                  value: 3
+              - column:
+                  name: amenity_id
+                  value: 5
