@@ -1,11 +1,13 @@
 package com.example.MyApp.PropertyView.Presentation.Controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.MyApp.PropertyView.Application.DTO.HotelDTO;
@@ -30,5 +32,27 @@ public class HotelController {
     public ResponseEntity<HotelDetailDTO> getHotelById(@PathVariable Long id) {
         HotelDetailDTO hotel = hotelService.getHotelById(id);
         return hotel != null ? ResponseEntity.ok(hotel) : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/search")
+    public List<HotelDTO> searchHotels(
+        @RequestParam(required = false) String name,
+        @RequestParam(required = false) String brand,
+        @RequestParam(required = false) String city,
+        @RequestParam(required = false) String county,
+        @RequestParam(required = false) List<String> amenities
+    ) {
+        return hotelService.searchHotels(name, brand, city, county, amenities);
+    }
+
+    @GetMapping("/histogram/{param}")
+    public Map<String, Long> getHistogram(
+        @PathVariable String param,
+        @RequestParam(required = false) List<String> filterValues
+    ) {
+        if (!List.of("brand", "city", "county", "amenities").contains(param)) {
+            throw new IllegalArgumentException("Invalid parameter: " + param);
+        }
+        return hotelService.getHistogram(param, filterValues);
     }
 }

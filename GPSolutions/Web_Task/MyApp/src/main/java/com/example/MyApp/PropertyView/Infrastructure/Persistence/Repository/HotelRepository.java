@@ -1,12 +1,22 @@
 package com.example.MyApp.PropertyView.Infrastructure.Persistence.Repository;
 
 import com.example.MyApp.PropertyView.Domain.Model.Hotel;
+import com.example.MyApp.PropertyView.Domain.Model.HotelSearchCriteria;
 import com.example.MyApp.PropertyView.Domain.Model.Address;
 import com.example.MyApp.PropertyView.Domain.Model.Contacts;
 import com.example.MyApp.PropertyView.Domain.Model.ArrivalTime;
 import com.example.MyApp.PropertyView.Domain.Model.Amenity;
 import com.example.MyApp.PropertyView.Domain.Ports.HotelPort;
 import com.example.MyApp.PropertyView.Infrastructure.Persistence.Entity.HotelEntity;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+
 import com.example.MyApp.PropertyView.Infrastructure.Persistence.Entity.AddressEntity;
 import com.example.MyApp.PropertyView.Infrastructure.Persistence.Entity.ContactsEntity;
 import com.example.MyApp.PropertyView.Infrastructure.Persistence.Entity.ArrivalTimeEntity;
@@ -14,7 +24,9 @@ import com.example.MyApp.PropertyView.Infrastructure.Persistence.Entity.AmenityE
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -23,6 +35,7 @@ import java.util.stream.Collectors;
 public class HotelRepository implements HotelPort {
 
     private final JpaHotelRepository jpaHotelRepository;
+    private final EntityManager entityManager;
 
     @Override
     public List<Hotel> findAllHotels() {
@@ -89,5 +102,135 @@ public class HotelRepository implements HotelPort {
         Amenity amenity = new Amenity();
         amenity.setName(amenityEntity.getName());
         return amenity;
+    }
+
+    @Override
+    public List<Hotel> searchHotels(HotelSearchCriteria criteria) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<HotelEntity> query = cb.createQuery(HotelEntity.class);
+        Root<HotelEntity> root = query.from(HotelEntity.class);
+        
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (criteria.getName() != null) {
+            predicates.add(cb.like(
+                cb.lower(root.get("name")),
+                "%" + criteria.getName().toLowerCase() + "%"
+            ));
+        }
+        
+        if (criteria.getBrand() != null) {
+            predicates.add(cb.equal(root.get("brand"), criteria.getBrand()));
+        }
+        
+        if (criteria.getCity() != null) {
+            predicates.add(cb.equal(
+                root.get("address").get("city"), 
+                criteria.getCity()
+            ));
+        }
+        
+        if (criteria.getCounty() != null) {
+            predicates.add(cb.equal(
+                root.get("address").get("county"), 
+                criteria.getCounty()
+            ));
+        }
+        
+        if (criteria.getAmenities() != null && !criteria.getAmenities().isEmpty()) {
+            Join<HotelEntity, AmenityEntity> amenitiesJoin = root.join("amenities");
+            predicates.add(amenitiesJoin.get("name").in(criteria.getAmenities()));
+        }
+        
+        query.where(predicates.toArray(new Predicate[0])).distinct(true);
+        
+        return entityManager.createQuery(query)
+            .getResultStream()
+            .map(this::mapToDomain)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, Long> getBrandHistogram(List<String> filterValues) {
+        return getSimpleHistogram("brand", filterValues);
+    }
+
+    private Map<String, Long> getSimpleHistogram(String field, List<String> filterValues) {
+        String jpql = """
+            SELECT h.${field}, COUNT(h) 
+            FROM HotelEntity h 
+            ${whereClause}
+            GROUP BY h.${field}
+            """;
+        
+        String whereClause = filterValues != null && !filterValues.isEmpty() 
+            ? "WHERE h.${field} IN :values" 
+            : "";
+        
+        Query query = entityManager.createQuery(
+            jpql
+                .replace("${field}", field)
+                .replace("${whereClause}", whereClause)
+        );
+        
+        if (filterValues != null && !filterValues.isEmpty()) {
+            query.setParameter("values", filterValues);
+        }
+        
+        List<Object[]> results = query.getResultList();
+        return results.stream()
+            .collect(Collectors.toMap(
+                arr -> (String) arr[0],
+                arr -> (Long) arr[1]
+            ));
+    }
+
+    // Для удобств (amenities)
+    @Override
+    public Map<String, Long> getAmenitiesHistogram(List<String> filterValues) {
+        String jpql = """
+            SELECT a.name, COUNT(h) 
+            FROM HotelEntity h 
+            JOIN h.amenities a 
+            ${whereClause}
+            GROUP BY a.name
+            """;
+        
+        String whereClause = filterValues != null && !filterValues.isEmpty() 
+            ? "WHERE a.name IN :values" 
+            : "";
+        
+        Query query = entityManager.createQuery(
+            jpql.replace("${whereClause}", whereClause)
+        );
+        
+        if (filterValues != null && !filterValues.isEmpty()) {
+            query.setParameter("values", filterValues);
+        }
+        
+        List<Object[]> results = query.getResultList();
+        Map<String, Long> histogram = results.stream()
+            .collect(Collectors.toMap(
+                arr -> (String) arr[0],
+                arr -> (Long) arr[1]
+            ));
+        
+        // Добавляем нулевые значения для отсутствующих элементов
+        if (filterValues != null) {
+            filterValues.forEach(value -> 
+                histogram.putIfAbsent(value, 0L)
+            );
+        }
+        
+        return histogram;
+    }
+    @Override
+    public Map<String, Long> getCityHistogram(List<String> filterValues) {
+        return getSimpleHistogram("address.city", filterValues);
+    }
+
+    @Override
+    public Map<String, Long> getCountyHistogram(List<String> filterValues) {
+        return getSimpleHistogram("address.county", filterValues);
     }
 }
