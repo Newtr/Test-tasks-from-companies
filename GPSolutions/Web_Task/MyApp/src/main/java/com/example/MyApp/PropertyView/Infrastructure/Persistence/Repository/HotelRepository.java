@@ -286,7 +286,7 @@ public class HotelRepository implements HotelPort {
                 .collect(Collectors.toList());
             entity.setAmenities(amenityEntities);
         }
-    
+        
         return entity;
     }
 }

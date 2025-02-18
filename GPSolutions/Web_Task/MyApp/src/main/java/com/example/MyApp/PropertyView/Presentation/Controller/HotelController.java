@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.MyApp.PropertyView.Application.DTO.AddAmenitiesRequest;
 import com.example.MyApp.PropertyView.Application.DTO.CreateHotelRequest;
 import com.example.MyApp.PropertyView.Application.DTO.HotelDTO;
 import com.example.MyApp.PropertyView.Application.DTO.HotelDetailDTO;
@@ -69,6 +70,15 @@ public class HotelController {
     @ResponseStatus(HttpStatus.CREATED)
     public HotelDTO createHotel(@Valid @RequestBody CreateHotelRequest request) {
         Hotel hotel = hotelService.createHotel(request);
+        return HotelDTO.fromHotel(hotel);
+    }
+
+    @PostMapping("/{id}/amenities")
+    public HotelDTO addAmenitiesToHotel(
+        @PathVariable Long id,
+        @Valid @RequestBody AddAmenitiesRequest request
+    ) {
+        Hotel hotel = hotelService.addAmenities(id, request.getAmenities());
         return HotelDTO.fromHotel(hotel);
     }
 }

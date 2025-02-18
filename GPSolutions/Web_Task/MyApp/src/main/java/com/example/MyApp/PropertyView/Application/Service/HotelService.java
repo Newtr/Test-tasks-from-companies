@@ -1,5 +1,6 @@
 package com.example.MyApp.PropertyView.Application.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.example.MyApp.PropertyView.Application.DTO.CreateHotelRequest;
 import com.example.MyApp.PropertyView.Application.DTO.HotelDTO;
 import com.example.MyApp.PropertyView.Application.DTO.HotelDetailDTO;
+import com.example.MyApp.PropertyView.Domain.ResourceNotFoundException;
 import com.example.MyApp.PropertyView.Domain.Model.Address;
 import com.example.MyApp.PropertyView.Domain.Model.Amenity;
 import com.example.MyApp.PropertyView.Domain.Model.ArrivalTime;
@@ -103,5 +105,25 @@ public class HotelService {
         }
         
         return hotel;
+    }
+
+    public Hotel addAmenities(Long hotelId, List<String> amenityNames) {
+    Hotel hotel = hotelPort.findHotelById(hotelId)
+        .orElseThrow(() -> new ResourceNotFoundException("Hotel not found"));
+        
+    List<Amenity> newAmenities = amenityNames.stream()
+        .map(name -> {
+            Amenity amenity = new Amenity();
+            amenity.setName(name);
+            return amenity;
+        })
+        .collect(Collectors.toList());
+    
+    if (hotel.getAmenities() == null) {
+        hotel.setAmenities(new ArrayList<>());
+    }
+    hotel.getAmenities().addAll(newAmenities);
+    
+    return hotelPort.saveHotel(hotel);
     }
 }
