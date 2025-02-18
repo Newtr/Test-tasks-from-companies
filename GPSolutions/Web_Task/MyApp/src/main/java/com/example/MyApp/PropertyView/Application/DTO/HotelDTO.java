@@ -1,7 +1,6 @@
 package com.example.MyApp.PropertyView.Application.DTO;
 
 import lombok.Data;
-import java.util.List;
 import com.example.MyApp.PropertyView.Domain.Model.Hotel;
 import com.example.MyApp.PropertyView.Domain.Model.Address;
 

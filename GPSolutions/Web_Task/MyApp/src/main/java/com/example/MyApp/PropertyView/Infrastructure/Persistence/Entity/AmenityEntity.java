@@ -13,9 +13,6 @@ public class AmenityEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String name;
-    
-    // Если потребуется двунаправленная связь с отелями, можно добавить:
-    // @ManyToMany(mappedBy = "amenities")
-    // private List<HotelEntity> hotels;
 }

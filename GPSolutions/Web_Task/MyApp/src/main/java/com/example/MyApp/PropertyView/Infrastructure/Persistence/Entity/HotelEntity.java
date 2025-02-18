@@ -33,7 +33,7 @@ public class HotelEntity {
     @JoinColumn(name = "arrival_time_id", referencedColumnName = "id")
     private ArrivalTimeEntity arrivalTime;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(
         name = "hotel_amenities",
         joinColumns = @JoinColumn(name = "hotel_id"),

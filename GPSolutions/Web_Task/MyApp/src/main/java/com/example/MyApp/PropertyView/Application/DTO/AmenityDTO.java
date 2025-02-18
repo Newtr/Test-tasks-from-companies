@@ -2,7 +2,6 @@ package com.example.MyApp.PropertyView.Application.DTO;
 
 import lombok.Data;
 
-import lombok.Data;
 import com.example.MyApp.PropertyView.Domain.Model.Amenity;
 
 @Data

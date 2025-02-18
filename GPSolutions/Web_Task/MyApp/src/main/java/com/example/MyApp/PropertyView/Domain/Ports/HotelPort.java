@@ -15,5 +15,6 @@ public interface HotelPort {
     Map<String, Long> getCityHistogram(List<String> filterValues);
     Map<String, Long> getCountyHistogram(List<String> filterValues);
     Map<String, Long> getAmenitiesHistogram(List<String> filterValues);
+    Hotel saveHotel(Hotel hotel);
 }
 

@@ -4,8 +4,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+
+import com.example.MyApp.PropertyView.Application.DTO.CreateHotelRequest;
 import com.example.MyApp.PropertyView.Application.DTO.HotelDTO;
 import com.example.MyApp.PropertyView.Application.DTO.HotelDetailDTO;
+import com.example.MyApp.PropertyView.Domain.Model.Address;
+import com.example.MyApp.PropertyView.Domain.Model.Amenity;
+import com.example.MyApp.PropertyView.Domain.Model.ArrivalTime;
+import com.example.MyApp.PropertyView.Domain.Model.Contacts;
+import com.example.MyApp.PropertyView.Domain.Model.Hotel;
 import com.example.MyApp.PropertyView.Domain.Model.HotelSearchCriteria;
 import com.example.MyApp.PropertyView.Domain.Ports.HotelPort;
 import lombok.RequiredArgsConstructor;
@@ -52,5 +59,49 @@ public class HotelService {
             case "amenities" -> hotelPort.getAmenitiesHistogram(filterValues);
             default -> throw new IllegalArgumentException("Invalid parameter");
         };
+    }
+
+    public Hotel createHotel(CreateHotelRequest request) {
+    Hotel hotel = convertToDomain(request);
+    return hotelPort.saveHotel(hotel);
+    }
+
+    private Hotel convertToDomain(CreateHotelRequest request) {
+        Hotel hotel = new Hotel();
+        hotel.setName(request.getName());
+        hotel.setDescription(request.getDescription());
+        hotel.setBrand(request.getBrand());
+        
+        Address address = new Address();
+        address.setHouseNumber(request.getAddress().getHouseNumber());
+        address.setStreet(request.getAddress().getStreet());
+        address.setCity(request.getAddress().getCity());
+        address.setCounty(request.getAddress().getCounty());
+        address.setPostCode(request.getAddress().getPostCode());
+        hotel.setAddress(address);
+        
+        Contacts contacts = new Contacts();
+        contacts.setPhone(request.getContacts().getPhone());
+        contacts.setEmail(request.getContacts().getEmail());
+        hotel.setContacts(contacts);
+        
+        ArrivalTime arrivalTime = new ArrivalTime();
+        arrivalTime.setCheckIn(request.getArrivalTime().getCheckIn());
+        arrivalTime.setCheckOut(request.getArrivalTime().getCheckOut());
+        hotel.setArrivalTime(arrivalTime);
+        
+        if (request.getAmenities() != null) {
+            hotel.setAmenities(
+                request.getAmenities().stream()
+                    .map(amenityName -> {
+                        Amenity amenity = new Amenity();
+                        amenity.setName(amenityName);
+                        return amenity;
+                    })
+                    .collect(Collectors.toList())
+            );
+        }
+        
+        return hotel;
     }
 }

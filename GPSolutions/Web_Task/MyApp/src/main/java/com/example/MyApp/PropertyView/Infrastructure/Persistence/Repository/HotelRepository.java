@@ -16,6 +16,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 
 import com.example.MyApp.PropertyView.Infrastructure.Persistence.Entity.AddressEntity;
 import com.example.MyApp.PropertyView.Infrastructure.Persistence.Entity.ContactsEntity;
@@ -36,6 +37,7 @@ public class HotelRepository implements HotelPort {
 
     private final JpaHotelRepository jpaHotelRepository;
     private final EntityManager entityManager;
+    private final AmenityRepository amenityRepository;
 
     @Override
     public List<Hotel> findAllHotels() {
@@ -185,7 +187,6 @@ public class HotelRepository implements HotelPort {
             ));
     }
 
-    // Для удобств (amenities)
     @Override
     public Map<String, Long> getAmenitiesHistogram(List<String> filterValues) {
         String jpql = """
@@ -215,7 +216,6 @@ public class HotelRepository implements HotelPort {
                 arr -> (Long) arr[1]
             ));
         
-        // Добавляем нулевые значения для отсутствующих элементов
         if (filterValues != null) {
             filterValues.forEach(value -> 
                 histogram.putIfAbsent(value, 0L)
@@ -232,5 +232,61 @@ public class HotelRepository implements HotelPort {
     @Override
     public Map<String, Long> getCountyHistogram(List<String> filterValues) {
         return getSimpleHistogram("address.county", filterValues);
+    }
+
+    @Transactional
+    @Override
+    public Hotel saveHotel(Hotel hotel) {
+        HotelEntity entity = mapToEntity(hotel);
+        HotelEntity savedEntity = jpaHotelRepository.save(entity);
+        return mapToDomain(savedEntity);
+    }
+
+    private HotelEntity mapToEntity(Hotel hotel) {
+        HotelEntity entity = new HotelEntity();
+        entity.setId(hotel.getId());
+        entity.setName(hotel.getName());
+        entity.setDescription(hotel.getDescription());
+        entity.setBrand(hotel.getBrand());
+
+        if (hotel.getAddress() != null) {
+            AddressEntity addressEntity = new AddressEntity();
+            addressEntity.setHouseNumber(hotel.getAddress().getHouseNumber());
+            addressEntity.setStreet(hotel.getAddress().getStreet());
+            addressEntity.setCity(hotel.getAddress().getCity());
+            addressEntity.setCounty(hotel.getAddress().getCounty());
+            addressEntity.setPostCode(hotel.getAddress().getPostCode());
+            entity.setAddress(addressEntity);
+        }
+
+        if (hotel.getContacts() != null) {
+            ContactsEntity contactsEntity = new ContactsEntity();
+            contactsEntity.setPhone(hotel.getContacts().getPhone());
+            contactsEntity.setEmail(hotel.getContacts().getEmail());
+            entity.setContacts(contactsEntity);
+        }
+
+        if (hotel.getArrivalTime() != null) {
+            ArrivalTimeEntity arrivalTimeEntity = new ArrivalTimeEntity();
+            arrivalTimeEntity.setCheckIn(hotel.getArrivalTime().getCheckIn());
+            arrivalTimeEntity.setCheckOut(hotel.getArrivalTime().getCheckOut());
+            entity.setArrivalTime(arrivalTimeEntity);
+        }
+
+        if (hotel.getAmenities() != null) {
+            List<AmenityEntity> amenityEntities = hotel.getAmenities().stream()
+                .map(amenity -> {
+                    Optional<AmenityEntity> existing = amenityRepository.findByName(amenity.getName());
+                    return existing.orElseGet(() -> {
+                        AmenityEntity newEntity = new AmenityEntity();
+                        newEntity.setName(amenity.getName());
+                        return amenityRepository.save(newEntity);
+                    });
+                })
+                .collect(Collectors.toList());
+            entity.setAmenities(amenityEntities);
+        }
+    
+        return entity;
     }
 }
