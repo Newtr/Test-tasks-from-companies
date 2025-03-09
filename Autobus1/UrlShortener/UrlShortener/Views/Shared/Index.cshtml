@@ -1,0 +1,50 @@
+﻿@model IEnumerable<UrlShortener.Models.UrlShorter>
+
+@{
+    ViewData["Title"] = "Список URL";
+}
+<style>
+    table, th, td {
+        border: 1px solid #000 !important;
+        border-collapse: collapse !important;
+    }
+</style>
+
+<h1>Список сокращённых URL</h1>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Длинный URL</th>
+        <th>Сокращённый URL</th>
+        <th>Дата создания</th>
+        <th>Количество переходов</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var url in Model)
+    {
+        <tr>
+            <td>@url.OriginalUrl</td>
+            <td>@url.ShortUrl</td>
+            <td>@url.CreatedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")</td>
+            <td>@url.ClickCount</td>
+            <td>
+                <button type="button" class="btn btn-warning" onclick="window.location.href='@Url.Action("Create", "UrlShortener", new { id = url.ID })'">
+                    Редактировать
+                </button>
+                <form asp-controller="UrlShortener" asp-action="Delete" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@url.ID" />
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<p>
+    <a href="@Url.Action("Create", "UrlShortener")" class="btn btn-primary">Создать новый URL</a>
+</p>

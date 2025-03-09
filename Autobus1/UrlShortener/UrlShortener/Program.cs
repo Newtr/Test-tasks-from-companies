@@ -1,9 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using UrlShortener.Data;
+using UrlShortener.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-    
+
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<UrlShortenerService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
@@ -12,6 +15,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     ));
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    context.Database.Migrate(); 
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -22,6 +31,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=UrlShortener}/{action=Index}/{id?}");
 
 app.Run();

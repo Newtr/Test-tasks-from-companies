@@ -105,3 +105,5 @@ C:\Work\Projects\Test-tasks-from-companies\Autobus1\UrlShortener\UrlShortener\ob
 C:\Work\Projects\Test-tasks-from-companies\Autobus1\UrlShortener\UrlShortener\obj\Debug\net8.0\UrlShortener.pdb
 C:\Work\Projects\Test-tasks-from-companies\Autobus1\UrlShortener\UrlShortener\obj\Debug\net8.0\UrlShortener.genruntimeconfig.cache
 C:\Work\Projects\Test-tasks-from-companies\Autobus1\UrlShortener\UrlShortener\obj\Debug\net8.0\ref\UrlShortener.dll
+C:\Work\Projects\Test-tasks-from-companies\Autobus1\UrlShortener\UrlShortener\obj\Debug\net8.0\UrlShortener.RazorAssemblyInfo.cache
+C:\Work\Projects\Test-tasks-from-companies\Autobus1\UrlShortener\UrlShortener\obj\Debug\net8.0\UrlShortener.RazorAssemblyInfo.cs

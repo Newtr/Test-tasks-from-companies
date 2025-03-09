@@ -1,0 +1,27 @@
+﻿@model UrlShortener.Models.UrlShorter
+
+@{
+    var currentModel = Model ?? new UrlShorter();
+    ViewData["Title"] = currentModel.ID == 0 ? "Создать новый URL" : "Редактировать URL";
+}
+
+<h1>@(currentModel.ID == 0 ? "Создать новый URL" : "Редактировать URL")</h1>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@currentModel.ID" />
+
+    <div class="form-group">
+        <label for="originalUrl">Длинный URL</label>
+        <input type="text" class="form-control" id="originalUrl" name="originalUrl" value="@currentModel.OriginalUrl" required />
+    </div>
+
+    <br />
+    <button type="submit" class="btn btn-primary">
+        @(currentModel.ID == 0 ? "Сократить URL" : "Сохранить изменения")
+    </button>
+</form>
+
+<p>
+    <a href="@Url.Action("Index", "UrlShortener")">Вернуться к списку</a>
+</p>
