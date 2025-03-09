@@ -22,6 +22,7 @@ namespace UrlShortener.Controllers
             var urls = await _context.ShortUrls
                 .OrderByDescending(u => u.CreatedDate)
                 .ToListAsync();
+
             return View(urls);
         }
         
@@ -40,14 +41,18 @@ namespace UrlShortener.Controllers
         
         public async Task<IActionResult> Create(int? id)
         {
-            if (id == null) 
-                return View(new UrlShorter());
+            if (!id.HasValue)
+            {
+                return View(new UrlShorter()); 
+            }
 
             var url = await _context.ShortUrls.FindAsync(id);
             if (url == null)
-                return NotFound();
+            {
+                return NotFound(); 
+            }
 
-            return View(url);
+            return View(url); 
         }
         
         [HttpPost]
@@ -59,76 +64,85 @@ namespace UrlShortener.Controllers
                 ModelState.AddModelError("", "Введите URL");
                 return View();
             }
-            
+
             if (!Uri.IsWellFormedUriString(originalUrl, UriKind.Absolute))
             {
                 ModelState.AddModelError("", "Неверный формат URL");
                 return View(new UrlShorter { OriginalUrl = originalUrl });
             }
 
-            if (!id.HasValue || id.Value == 0)
+            if (id.HasValue && id.Value > 0)
             {
-                try
+                return await EditUrl(id.Value, originalUrl);
+            }
+            
+            return await CreateNewUrl(originalUrl);
+        }
+        
+        private async Task<IActionResult> CreateNewUrl(string originalUrl)
+        {
+            try
+            {
+                var newUrl = await _urlShortenerService.CreateShortUrls(originalUrl);
+                var urlToAdd = new UrlShorter
+                {
+                    OriginalUrl = originalUrl,
+                    ShortUrl = newUrl.ShortUrl,
+                    CreatedDate = DateTime.UtcNow
+                };
+                
+                _context.ShortUrls.Add(urlToAdd);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View();
+            }
+        }
+        
+        private async Task<IActionResult> EditUrl(int id, string originalUrl)
+        {
+            var url = await _context.ShortUrls.FindAsync(id);
+            if (url == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                url.OriginalUrl = originalUrl;
+                
+                if (url.ShortUrl == null || url.OriginalUrl != originalUrl)
                 {
                     var newUrl = await _urlShortenerService.CreateShortUrls(originalUrl);
-                    _context.ShortUrls.Add(new UrlShorter
-                    {
-                        OriginalUrl = originalUrl,
-                        ShortUrl = newUrl.ShortUrl,
-                        CreatedDate = DateTime.UtcNow
-                    });
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    url.ShortUrl = newUrl.ShortUrl;
                 }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", ex.Message);
-                    return View();
-                }
+
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-            else // Редактирование существующего URL
+            catch (Exception ex)
             {
-                var url = await _context.ShortUrls.FindAsync(id);
-                if (url == null)
-                    return NotFound();
-
-                try
-                {
-                    url.OriginalUrl = originalUrl;
-
-                    // Генерируем новый короткий URL, если изменился оригинальный
-                    if (url.ShortUrl == null || url.OriginalUrl != originalUrl)
-                    {
-                        var newUrl = await _urlShortenerService.CreateShortUrls(originalUrl);
-                        url.ShortUrl = newUrl.ShortUrl;
-                    }
-
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", ex.Message);
-                    return View(url);
-                }
+                ModelState.AddModelError("", ex.Message);
+                return View(url);
             }
         }
         
         [HttpGet("r/{shortUrl}")]
         public async Task<IActionResult> RedirectToUrl(string shortUrl)
         {
-            // Ищем запись по короткому URL
             var url = await _context.ShortUrls.FirstOrDefaultAsync(u => u.ShortUrl == shortUrl);
             if (url == null)
             {
                 return NotFound();
             }
-            
+
             // Увеличиваем счётчик переходов
             url.ClickCount++;
             await _context.SaveChangesAsync();
-            
-            // Перенаправляем пользователя на оригинальный URL
+
             return Redirect(url.OriginalUrl);
         }
     }
